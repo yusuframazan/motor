@@ -3,30 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESP32 Servo Kontrolü</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-    </style>
+    <title>Servo Kontrol</title>
 </head>
 <body>
-    <h1>ESP32 Servo Kontrolü</h1>
-    <button id="moveButton">Motoru Hareket Ettir</button>
+    <h1>Servo Motor Kontrolü</h1>
+    <button id="moveButton">Servo Motoru Hareket Et</button>
 
     <script>
-        document.getElementById('moveButton').addEventListener('click', function() {
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", "http://192.168.1.38/move_servo", true); // ESP32'nin IP adresini ve endpoint'i buraya girin
-            xhr.send();
+        document.getElementById("moveButton").addEventListener("click", function() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("GET", "http://192.168.1.38/move_servo", true); // ESP32'nin IP adresini buraya girin
+            xhttp.send();
         });
     </script>
 </body>
