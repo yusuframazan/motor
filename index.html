@@ -3,24 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sensor Data</title>
+    <title>ESP32 Servo Kontrolü</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-    <h1>Sensor Data</h1>
-    <div id="sensorData"></div>
+    <h1>ESP32 Servo Kontrolü</h1>
+    <button id="moveButton">Motoru Hareket Ettir</button>
 
     <script>
-        // sensorData.json dosyasından veriyi almak için bir HTTP GET isteği gönder
-        fetch('/sensorData.json')
-        .then(response => response.json()) // JSON veriyi parse et
-        .then(data => {
-            // Alınan verileri HTML içine yerleştir
-            document.getElementById('sensorData').innerHTML = `
-                <p>Sıcaklık: ${data.temperature} °C</p>
-                <p>Nem: ${data.humidity} %</p>
-            `;
-        })
-        .catch(error => console.error('Hata:', error)); // Hata durumunda konsola bir hata mesajı yazdır
+        document.getElementById('moveButton').addEventListener('click', function() {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "http://192.168.1.38/move_servo", true); // ESP32'nin IP adresini ve endpoint'i buraya girin
+            xhr.send();
+        });
     </script>
 </body>
 </html>
