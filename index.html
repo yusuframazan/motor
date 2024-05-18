@@ -1,61 +1,125 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sensör Verileri</title>
+    <title>Bitki İzleme Web Sitesi - Kontrol Paneli</title>
     <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
         }
-        th, td {
-            border: 1px solid #dddddd;
-            text-align: left;
-            padding: 8px;
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        th {
-            background-color: #f2f2f2;
+
+        h2 {
+            color: #4caf50;
+        }
+
+        .control-panel {
+            margin-top: 20px;
+        }
+
+        .control-panel > div {
+            margin-bottom: 20px;
+        }
+
+        .control-panel p {
+            margin: 5px 0;
+        }
+
+        .control-panel button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .control-panel button:hover {
+            background-color: #388e3c;
         }
     </style>
 </head>
+
 <body>
-    <h1>Sensör Verileri</h1>
-    <table id="sensorData">
-        <thead>
-            <tr>
-                <th>Timestamp</th>
-                <th>Sıcaklık (°C)</th>
-                <th>Nem (%)</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Buraya JavaScript koduyla veriler eklenecek -->
-        </tbody>
-    </table>
+    <div class="container">
+        <h2>Kontrol Paneli</h2>
+        <div class="control-panel">
+            <div>
+                <p>Fan Durumu: <span id="fan-status">Kapalı</span></p>
+                <button onclick="toggleFan()">Fanı Aç/Kapat</button>
+            </div>
+            <div>
+                <p>Su Motoru Durumu: <span id="water-pump-status">Kapalı</span></p>
+                <button onclick="toggleWaterPump()">Su Motorunu Aç/Kapat</button>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // Verileri Firebase'den çek ve tabloya ekle
-        fetch('https://bitki-izleme-default-rtdb.firebaseio.com/sensors.json')
-            .then(response => response.json())
-            .then(data => {
-                const sensorData = document.getElementById('sensorData');
-                Object.keys(data).forEach(key => {
-                    const sensor = data[key];
-                    const timestamp = new Date(parseInt(key));
-                    const temperature = sensor.temperature;
-                    const humidity = sensor.humidity;
-                    const row = `
-                        <tr>
-                            <td>${timestamp}</td>
-                            <td>${temperature}</td>
-                            <td>${humidity}</td>
-                        </tr>
-                    `;
-                    sensorData.innerHTML += row;
-                });
+        function updateControlStatus() {
+            // Fan ve su motoru durumlarını Firebase'den al ve güncelle
+            fetch('https://bitki-izleme-default-rtdb.firebaseio.com/control.json')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('fan-status').textContent = data.fan ? 'Açık' : 'Kapalı';
+                    document.getElementById('water-pump-status').textContent = data.waterPump ? 'Açık' : 'Kapalı';
+                })
+                .catch(error => console.error('Kontrol durumu alınamadı:', error));
+        }
+
+        function toggleFan() {
+            // Fan durumunu değiştir ve Firebase'e gönder
+            const fanStatus = document.getElementById('fan-status').textContent === 'Kapalı';
+            fetch('https://bitki-izleme-default-rtdb.firebaseio.com/control.json', {
+                method: 'PATCH',
+                body: JSON.stringify({ fan: fanStatus }),
+                headers: { 'Content-Type': 'application/json' }
             })
-            .catch(error => console.error('Veri alınamadı:', error));
+            .then(response => {
+                if (response.ok) {
+                    updateControlStatus();
+                } else {
+                    console.error('Fan durumu güncellenemedi.');
+                }
+            })
+            .catch(error => console.error('Fan durumu güncellenemedi:', error));
+        }
+
+        function toggleWaterPump() {
+            // Su motoru durumunu değiştir ve Firebase'e gönder
+            const waterPumpStatus = document.getElementById('water-pump-status').textContent === 'Kapalı';
+            fetch('https://bitki-izleme-default-rtdb.firebaseio.com/control.json', {
+                method: 'PATCH',
+                body: JSON.stringify({ waterPump: waterPumpStatus }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => {
+                if (response.ok) {
+                    updateControlStatus();
+                } else {
+                    console.error('Su motoru durumu güncellenemedi.');
+                }
+            })
+            .catch(error => console.error('Su motoru durumu güncellenemedi:', error));
+        }
+
+        // Sayfa yüklendiğinde kontrol durumlarını güncelle
+        updateControlStatus();
     </script>
 </body>
-</html> 
+
+</html>
