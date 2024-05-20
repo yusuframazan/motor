@@ -69,7 +69,25 @@
         </div>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
     <script>
+        // Firebase konfigürasyonu
+        const firebaseConfig = {
+            apiKey: "AIzaSyABenFKvbnwgR4mcRGi-V5SQ4Y2alivx7w",
+            authDomain: "bitki-izleme.firebaseapp.com",
+            databaseURL: "https://bitki-izleme-default-rtdb.firebaseio.com",
+            projectId: "bitki-izleme",
+            storageBucket: "bitki-izleme.appspot.com",
+            messagingSenderId: "561641375328",
+            appId: "1:561641375328:web:f00fcc7054b32d36c86505",
+            measurementId: "G-N0QXWTRZVF"
+        };
+
+        // Firebase'i başlatma
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database(app);
+
         function updateControlStatus() {
             // Fan ve su motoru durumlarını Firebase'den al ve güncelle
             fetch('https://bitki-izleme-default-rtdb.firebaseio.com/control.json')
