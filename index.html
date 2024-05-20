@@ -69,11 +69,10 @@
         </div>
     </div>
 
-    <script type="module">
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+    <script>
         // Firebase konfigürasyonu
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js';
-        import { getDatabase, ref, get, update } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js';
-
         const firebaseConfig = {
             apiKey: "AIzaSyABenFKvbnwgR4mcRGi-V5SQ4Y2alivx7w",
             authDomain: "bitki-izleme.firebaseapp.com",
@@ -86,51 +85,54 @@
         };
 
         // Firebase'i başlatma
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database(app);
 
         function updateControlStatus() {
             // Fan ve su motoru durumlarını Firebase'den al ve güncelle
-            const controlRef = ref(database, 'control');
-            get(controlRef).then((snapshot) => {
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
+            fetch('https://bitki-izleme-default-rtdb.firebaseio.com/control.json')
+                .then(response => response.json())
+                .then(data => {
                     document.getElementById('fan-status').textContent = data.fan ? 'Açık' : 'Kapalı';
                     document.getElementById('water-pump-status').textContent = data.waterPump ? 'Açık' : 'Kapalı';
-                } else {
-                    console.error('Veri yok.');
-                }
-            }).catch((error) => {
-                console.error('Kontrol durumu alınamadı:', error);
-            });
+                })
+                .catch(error => console.error('Kontrol durumu alınamadı:', error));
         }
 
         function toggleFan() {
             // Fan durumunu değiştir ve Firebase'e gönder
             const fanStatus = document.getElementById('fan-status').textContent === 'Kapalı';
-            const updates = {};
-            updates['/control/fan'] = fanStatus;
-            update(ref(database), updates)
-                .then(() => {
+            fetch('https://bitki-izleme-default-rtdb.firebaseio.com/control.json', {
+                method: 'PATCH',
+                body: JSON.stringify({ fan: fanStatus }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => {
+                if (response.ok) {
                     updateControlStatus();
-                })
-                .catch((error) => {
-                    console.error('Fan durumu güncellenemedi:', error);
-                });
+                } else {
+                    console.error('Fan durumu güncellenemedi.');
+                }
+            })
+            .catch(error => console.error('Fan durumu güncellenemedi:', error));
         }
 
         function toggleWaterPump() {
             // Su motoru durumunu değiştir ve Firebase'e gönder
             const waterPumpStatus = document.getElementById('water-pump-status').textContent === 'Kapalı';
-            const updates = {};
-            updates['/control/waterPump'] = waterPumpStatus;
-            update(ref(database), updates)
-                .then(() => {
+            fetch('https://bitki-izleme-default-rtdb.firebaseio.com/control.json', {
+                method: 'PATCH',
+                body: JSON.stringify({ waterPump: waterPumpStatus }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => {
+                if (response.ok) {
                     updateControlStatus();
-                })
-                .catch((error) => {
-                    console.error('Su motoru durumu güncellenemedi:', error);
-                });
+                } else {
+                    console.error('Su motoru durumu güncellenemedi.');
+                }
+            })
+            .catch(error => console.error('Su motoru durumu güncellenemedi:', error));
         }
 
         // Sayfa yüklendiğinde kontrol durumlarını güncelle
